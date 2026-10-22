@@ -1,12 +1,16 @@
 package br.com.zenon;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
 
     // git checkout -b nome-branch para trocar pra branch
+    // git add . para adicionar os novos arquivos para serem commitados
+    // git commit -m "mensagem" para fazer o commit
+    // git push -u origin nome-branch para fazer o push pra branch
 
     static void main() {
 
@@ -22,5 +26,15 @@ public class Main {
 
         IO.println(firstTransaction);
         IO.println(secondTransaction);
+
+        IO.println("------------------------------------------------------------------------------");
+
+        TransactionIngestor transactionIngestor = new TransactionIngestor();
+        List<Transaction> transactions = transactionIngestor.read("data/PS_20174392719_1491204439457_log.csv");
+        IO.println(transactions.size());
+
+        // para o fluxo transactions, limita a 10 registro e imprime cada um
+        transactions.stream().limit(10).forEach(IO::println);
+
     }
 }
