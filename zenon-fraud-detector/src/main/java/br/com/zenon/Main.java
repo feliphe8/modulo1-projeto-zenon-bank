@@ -36,5 +36,8 @@ public class Main {
         // para o fluxo transactions, limita a 10 registro e imprime cada um
         transactions.stream().limit(10).forEach(IO::println);
 
+        List<Transaction> transactionsBadData = transactionIngestor.read("data/paysim_with_bad_data.csv");
+        transactionsBadData.forEach(IO::println);
+
     }
 }
