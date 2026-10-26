@@ -12,6 +12,7 @@ public class Main {
     // git add . para adicionar os novos arquivos para serem commitados
     // git commit -m "mensagem" para fazer o commit
     // git push -u origin nome-branch para fazer o push pra branch
+    // VM Argument -Xmx128m - limita a memoria
 
     static void main() {
 
@@ -68,21 +69,21 @@ public class Main {
 
         IO.println("------------------------------------------------------------------------------");
 
-        TransactionRepository transactionRepository = new TransactionListRepository(transactions);
+        TransactionRepository transactionListRepository = new TransactionListRepository(transactions);
         String notFoundOriginName = "C12345";
-        transactionRepository.findByOriginName(notFoundOriginName)
+        transactionListRepository.findByOriginName(notFoundOriginName)
                 .ifPresentOrElse(IO::println, () -> IO.println("Transação não encontrada para o valor: " + notFoundOriginName)); // passa uma ação quando está presente e uma ação quando não está present
 
         String existingOriginName = "C1231006815";
         long startTimeList = System.nanoTime();
-        transactionRepository.findByOriginName(existingOriginName)
+        transactionListRepository.findByOriginName(existingOriginName)
                 .ifPresentOrElse(IO::println, () -> IO.println("Transação não encontrada para o valor: " + existingOriginName)); // passa uma ação quando está presente e uma ação quando não está present
         long endTimeList = System.nanoTime();
         IO.println("Tempo de busca - List(ms): " + (endTimeList - startTimeList) / 1_000_000.0);
 
-        transactionRepository = new TransactionMapRepository(transactions);
+        TransactionMapRepository transactionMapRepository = new TransactionMapRepository(transactions);
         long startTimeMap = System.nanoTime();
-        transactionRepository.findByOriginName(existingOriginName)
+        transactionMapRepository.findByOriginName(existingOriginName)
                 .ifPresentOrElse(IO::println, () -> IO.println("Transação não encontrada para o valor: " + existingOriginName)); // passa uma ação quando está presente e uma ação quando não está present
         long endTimeMap = System.nanoTime();
         IO.println("Tempo de busca - Map(ms): " + (endTimeMap - startTimeMap) / 1_000_000.0);
