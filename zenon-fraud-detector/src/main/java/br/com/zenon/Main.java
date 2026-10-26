@@ -2,6 +2,7 @@ package br.com.zenon;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -38,6 +39,32 @@ public class Main {
 
         List<Transaction> transactionsBadData = transactionIngestor.read("data/paysim_with_bad_data.csv");
         transactionsBadData.forEach(IO::println);
+
+        IO.println("------------------------------------------------------------------------------");
+
+        FraudAnalyzer fraudAnalyzer = new FraudAnalyzer(transactions);
+
+        //Apenas transações onde o isFraud = true, imprima o tamanho da lista
+        long fraudCount = fraudAnalyzer.countFrauds();
+        IO.println("Total de fraudes: " + fraudCount);
+
+        // Imprima as 3 fraudes de maior valor(amount)
+        List<BigDecimal> highestFraudsAmounts = fraudAnalyzer.findHighestValueFraudsAmounts(3);
+//        highestFrauds.stream().map(Transaction::amount).forEach(IO::println); // .map para imprimir apenas o amount
+        highestFraudsAmounts.forEach(amount -> IO.println("- %.2f".formatted(amount)));
+
+        // Obtter apenas os nomes dos clientes de origem(nameOrig) dessas fraudes e depois gere uma lista sem repetições(Set ou distinct) com os 5 maiores clientes suspeitos
+        List<String> suspiciousClients = fraudAnalyzer.findTopSuspiciousClients(5);
+        suspiciousClients.forEach(IO::println);
+
+        // Calcule o prejuízo total causado pelas  fraudes(soma dos amount)
+        BigDecimal totalFraudLoss = fraudAnalyzer.calculateTotalFraudLoss();
+        IO.println("Prejuízo total: " + totalFraudLoss);
+
+        // Conte quantas fraudes ocorreram por tipo de transação(CASH_OUT, TRANSFER, etc...)
+        Map<TransactionType, Long> fraudCountByType = fraudAnalyzer.countFraudsByType();
+        IO.println("Fraudes por tipo: ");
+        fraudCountByType.forEach((type, count) -> IO.println("- %s: %d".formatted(type, count)));
 
     }
 }

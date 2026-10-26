@@ -8,6 +8,8 @@ import java.util.*;
 
 public class TransactionIngestor {
 
+    public static final int FRAUD_LIMIT = 50_000;
+
     // Metodo mais moderno de se ler arquivos
     public List<Transaction> read(String fileName){
         Path path = Path.of(fileName);
@@ -21,7 +23,7 @@ public class TransactionIngestor {
             // converte/retorna uma Lista
             return lines.stream()
                     .skip(1)
-                    .limit(1000)
+                    .limit(FRAUD_LIMIT)
                     .map(this::parseTransaction)
                     //.filter(Objects::nonNull)
                     .filter(Optional::isPresent)
