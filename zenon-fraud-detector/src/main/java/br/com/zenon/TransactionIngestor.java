@@ -8,7 +8,7 @@ import java.util.*;
 
 public class TransactionIngestor {
 
-    public static final int FRAUD_LIMIT = 50_000;
+    public static final int FRAUD_LIMIT = 100_000;
 
     // Metodo mais moderno de se ler arquivos
     public List<Transaction> read(String fileName){

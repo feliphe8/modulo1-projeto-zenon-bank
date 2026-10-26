@@ -66,5 +66,26 @@ public class Main {
         IO.println("Fraudes por tipo: ");
         fraudCountByType.forEach((type, count) -> IO.println("- %s: %d".formatted(type, count)));
 
+        IO.println("------------------------------------------------------------------------------");
+
+        TransactionRepository transactionRepository = new TransactionListRepository(transactions);
+        String notFoundOriginName = "C12345";
+        transactionRepository.findByOriginName(notFoundOriginName)
+                .ifPresentOrElse(IO::println, () -> IO.println("Transação não encontrada para o valor: " + notFoundOriginName)); // passa uma ação quando está presente e uma ação quando não está present
+
+        String existingOriginName = "C1231006815";
+        long startTimeList = System.nanoTime();
+        transactionRepository.findByOriginName(existingOriginName)
+                .ifPresentOrElse(IO::println, () -> IO.println("Transação não encontrada para o valor: " + existingOriginName)); // passa uma ação quando está presente e uma ação quando não está present
+        long endTimeList = System.nanoTime();
+        IO.println("Tempo de busca - List(ms): " + (endTimeList - startTimeList) / 1_000_000.0);
+
+        transactionRepository = new TransactionMapRepository(transactions);
+        long startTimeMap = System.nanoTime();
+        transactionRepository.findByOriginName(existingOriginName)
+                .ifPresentOrElse(IO::println, () -> IO.println("Transação não encontrada para o valor: " + existingOriginName)); // passa uma ação quando está presente e uma ação quando não está present
+        long endTimeMap = System.nanoTime();
+        IO.println("Tempo de busca - Map(ms): " + (endTimeMap - startTimeMap) / 1_000_000.0);
+
     }
 }
