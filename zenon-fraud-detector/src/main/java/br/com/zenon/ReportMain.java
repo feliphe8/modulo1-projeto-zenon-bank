@@ -8,7 +8,7 @@ import java.util.ResourceBundle;
 
 public class ReportMain {
     void main(String[] args){
-        // parâmetro passado no program arguments 
+        // parâmetro passado no program arguments
         String language = (args.length > 0) ? args[0] : "pt";
 
         Locale locale = Locale.of(language);

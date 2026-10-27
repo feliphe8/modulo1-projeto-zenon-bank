@@ -19,6 +19,12 @@ public class TransactionMapRepository implements TransactionRepository{
     }
 
     @Override
+    public void save(Transaction transaction) {
+        // coloca no map se não existir essa chave/valor/registro. Com o put normal ele sobrescreveria o registro
+        this.transactionByOriginName.putIfAbsent(transaction.origin().name(), transaction);
+    }
+
+    @Override
     public Optional<Transaction> findByOriginName(String originName) {
         return Optional.ofNullable(transactionByOriginName.get(originName)); // ofNullable significa que o valor pode ser nulo
     }
