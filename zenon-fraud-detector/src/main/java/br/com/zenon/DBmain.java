@@ -30,8 +30,10 @@ public class DBmain {
         List<Transaction> transactions = transactionIngestor.read("data/PS_20174392719_1491204439457_log.csv");
         IO.println(transactions.size());
         IO.println("Iniciando inserts");
-        transactions
-                .forEach(transactionSQLRepository::save);
+        //transactions
+          //      .forEach(transactionSQLRepository::save);
+
+        transactionSQLRepository.saveAll(transactions);
 
         long endTimeSQL = System.nanoTime();
         IO.println("Tempo inserção - List(ms): " + (endTimeSQL - startTimeSQL) / 1_000_000.0);
