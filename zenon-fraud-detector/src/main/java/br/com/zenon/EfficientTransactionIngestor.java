@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -17,9 +18,12 @@ public class EfficientTransactionIngestor {
     public static final int FRAUD_LIMIT = 10_000;
     public static final int LINE_BATCH_SIZE = 2_500;
 
+    // limite de 100 virtual threads
+    private final Semaphore dbPermits = new Semaphore(100);
+
     public void readAsBatch(String fileName, Consumer<List<Transaction>> batchConsumer){
         Path path = Path.of(fileName);
-        try(ExecutorService executorService = Executors.newFixedThreadPool(10);
+        try(ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
                 Stream<String> lines = Files.lines(path).skip(1)/*.limit(FRAUD_LIMIT)*/) {
 
             Iterator<String> iterator = lines.iterator();
@@ -37,7 +41,13 @@ public class EfficientTransactionIngestor {
                     // manda uma copia imutavel para não dar problema entre as threads - ira utilizar mais memoria e ira perder a ordem das coisas
                     final List<String> currentLineBatch = List.copyOf(lineBatch);
                     // executa o executeBatch em paralelo
-                    executorService.submit(() -> executeBatch(currentLineBatch, batchConsumer));
+                    executorService.submit(() -> {
+                        try{
+                            executeBatch(currentLineBatch, batchConsumer);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
                     lineBatch.clear();
                 }
 
@@ -48,7 +58,13 @@ public class EfficientTransactionIngestor {
                 // manda uma copia imutavel para não dar problema entre as threads
                 final List<String> currentLineBatch = List.copyOf(lineBatch);
                 // executa o executeBatch em paralelo
-                executorService.submit(() -> executeBatch(currentLineBatch, batchConsumer));
+                executorService.submit(() -> {
+                    try{
+                        executeBatch(currentLineBatch, batchConsumer);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
             }
 
         } catch (Exception e){
@@ -63,8 +79,18 @@ public class EfficientTransactionIngestor {
                 .map(Optional::get)
                 .toList();
 
-        // consome as 5 mil transações
-        batchConsumer.accept(transactionBatch);
+        try {
+            dbPermits.acquire();
+            // consome as 5 mil line transações
+            try {
+                batchConsumer.accept(transactionBatch);
+            } finally {
+                dbPermits.release();
+            }
+
+        } catch (Exception e){
+            Thread.currentThread().interrupt();
+        }
     }
 
     // Metodo mais moderno de se ler arquivos
